@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
 
     
-    spark = SparkSession.builder.appName("StatsAnalyzer")\
+    spark = SparkSession.builder.appName("pyspark_etl_code_sample")\
             .enableHiveSupport().config("hive.exec.dynamic.partition", "true")\
             .config("hive.exec.dynamic.partition.mode", "nonstrict")\
             .getOrCreate()
