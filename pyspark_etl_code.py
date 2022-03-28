@@ -11,6 +11,13 @@ from pyspark.sql.functions import *
 
 
 if __name__ == "__main__":
+
+    # process
+    # 1. read json rawdata files (because firehose buffer delay)
+    # 2. filer target utc time and make table
+    # 3. make sql script for each data table (add partition key, casting data, filtering) 
+
+
     
     spark = SparkSession.builder.appName("StatsAnalyzer")\
             .enableHiveSupport().config("hive.exec.dynamic.partition", "true")\
@@ -19,16 +26,17 @@ if __name__ == "__main__":
     sqlContext = SQLContext(spark.sparkContext)
     
     # raw_data_soruce
-    raw_data_bucket = "meeting-test-cli-1"
+    raw_data_bucket = "sample_s3_bucket"
     raw_data_dir = "rawdata"
-    raw_data_detail = "action_detail"
+    raw_data_detail = "action_info"
     
-    # schema_info
+    # data catalog schema_info
     schema_db = "rawdata_test"
     
-    # it means we need to etl rawdata triggered by user at 2022-03-07 02 utc time&hour
+    # target user trigger time
     airflow_execution_time = sys.argv[1]  
-    # airflow_execution_time = '2022-03-07T02:10:07+00:00'
+    # ex) airflow_execution_time = '2022-03-07T02:10:07+00:00'
+    #     it means we need to etl rawdata triggered by user at 2022-03-07 02 utc time&hour
     
     # parse s3 date dir and df & view creation
     def get_file_dir(date_time_str):
@@ -60,6 +68,7 @@ if __name__ == "__main__":
     print("Date dir list : " + str(date_dir_list))
     print("Date condition : " + str(date_condition))
     
+    # union two utc rawdata foler because of kinesis firehose buffer delay
     rawdata_df_1 = reduce(DataFrame.unionAll,  [spark.read.json(date_dir) for date_dir in date_dir_list])
     rawdata_df_2 = rawdata_df_1.filter(rawdata_df_1.base_date.contains(date_condition) )
     
