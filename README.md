@@ -1,4 +1,4 @@
-# sample etl pyspark scirpt
+# sample etl pyspark script
 
 process
 1. read json rawdata files (because firehose buffer delay)
