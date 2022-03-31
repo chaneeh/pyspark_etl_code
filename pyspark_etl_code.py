@@ -8,7 +8,7 @@ from pyspark.sql.functions import *
 
 
 # convert date_time_str to s3_file_dir
-def get_sfile_dir(date_time_str):
+def get_file_dir(date_time_str):
     date_time_str = date_time_str.split('+')[0]
     date_time_obj = datetime.datetime.strptime(date_time_str, "%Y-%m-%dT%H:%M:%S")
     prev_date_time_obj = date_time_obj - datetime.timedelta(hours = 1)
@@ -22,8 +22,7 @@ def get_sfile_dir(date_time_str):
     for date_dir in date_dir_list:
         date_info, hour_info = date_dir.split('T')
         default_dir = f"s3://{raw_data_bucket}/{raw_data_dir}/"
-        date_dir = '/'.join(date_info.split('-'))
-        hour_dir = hour_info.split(':')[0]
+        date_dir, hour_dir = '/'.join(date_info.split('-')), hour_info.split(':')[0]
         
         final_date_dir.append(default_dir + date_dir + "/" + hour_dir + "/")
         final_date_condition = date_info + "-" + hour_dir
@@ -107,10 +106,10 @@ if __name__ == "__main__":
     # collect table names
     df_list = sqlContext.sql(f"""show tables from {schema_db}""")
     table_name_list = list(set(df_list.filter(df_list.isTemporary == False).select("tableName").rdd.flatMap(lambda x: x).collect()))
-    
+
     print('Collecting table name : ' + str(table_name_list))
     
-        
+    # create and execute spark sql query for each target table
     for table_name in table_name_list:
         print('Current table name : ' + str(table_name))
         
