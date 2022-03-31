@@ -67,7 +67,6 @@ if __name__ == "__main__":
     # 2. filer target utc time and make table
     # 3. make sql script for each data table (add partition key, casting data, filtering) 
 
-
     
     spark = SparkSession.builder.appName("pyspark_etl_code_sample")\
             .enableHiveSupport().config("hive.exec.dynamic.partition", "true")\
